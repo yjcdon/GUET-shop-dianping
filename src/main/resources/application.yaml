@@ -1,0 +1,36 @@
+server:
+  port: 8081
+
+spring:
+  banner:
+    charset: utf-8
+    location: banner.txt
+  application:
+    name: hmdp
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.138.88.67:6000/hmdp?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 123456
+  redis:
+    host: 8.138.88.67
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 10
+        max-idle: 10
+        min-idle: 1
+        time-between-eviction-runs: 10s
+    database: 1
+  jackson:
+    default-property-inclusion: non_null # JSON处理时忽略非空字段
+
+
+mybatis-plus:
+  type-aliases-package: com.hmdp.entity # 别名扫描包
+  global-config:
+    banner: false
+logging:
+  level:
+    com.hmdp: debug
+

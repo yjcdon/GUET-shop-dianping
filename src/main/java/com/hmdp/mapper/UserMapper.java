@@ -1,0 +1,18 @@
+package com.hmdp.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmdp.entity.User;
+
+/**
+* @author lyj
+* @description 针对表【tb_user】的数据库操作Mapper
+* @createDate 2024-02-15 18:09:23
+* @Entity  com.hmdp.entity.User
+*/
+public interface UserMapper extends BaseMapper<User> {
+
+}
+
+
+
+
