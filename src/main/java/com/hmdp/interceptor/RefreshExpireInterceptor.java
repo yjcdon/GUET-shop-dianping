@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Author: 梁雨佳
- * Date: 2024/2/16 18:10:20
- * Description: 登录的第一道拦截器
+ * @Author: 梁雨佳
+ * @Date: 2024/2/16 18:10:20
+ * @Description: 登录的第一道拦截器
  */
 @Component
 public class RefreshExpireInterceptor implements HandlerInterceptor {

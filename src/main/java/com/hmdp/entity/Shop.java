@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 虎哥
@@ -104,6 +104,6 @@ public class Shop implements Serializable {
     private LocalDateTime updateTime;
 
 
-    @TableField(exist = false)
-    private Double distance;
+    // @TableField(exist = false)
+    // private Double distance;
 }

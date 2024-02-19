@@ -5,8 +5,7 @@ spring:
   banner:
     charset: utf-8
     location: banner.txt
-  application:
-    name: hmdp
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://8.138.88.67:6000/hmdp?useSSL=false&serverTimezone=UTC

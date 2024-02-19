@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Author: 梁雨佳
- * Date: 2024/2/16 11:04:58
- * Description: 登录的第二道拦截器
+ * @Author: 梁雨佳
+ * @Date: 2024/2/16 11:04:58
+ * @Description: 登录的第二道拦截器
  */
 @Component
 public class LoginInterceptor implements HandlerInterceptor {

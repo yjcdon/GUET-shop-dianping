@@ -47,9 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     private StringRedisTemplate srt;
 
     /**
-     * Author: 梁雨佳
-     * Date: 2024/2/15 17:42:40
-     * Description: 发送验证码
+     * @Author: 梁雨佳
+     * @Date: 2024/2/15 17:42:40
+     * @Description: 发送验证码
      */
     @Override
     public Result sendCode (String phone, HttpSession session) {
@@ -71,9 +71,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
     /**
-     * Author: 梁雨佳
-     * Date: 2024/2/15 17:42:48
-     * Description: 用户登录
+     * @Author: 梁雨佳
+     * @Date: 2024/2/15 17:42:48
+     * @Description: 用户登录
      */
     @Override
     public Result login (LoginFormDTO loginForm, HttpSession session) {
@@ -127,9 +127,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
 
     /**
-     * Author: 梁雨佳
-     * Date: 2024/2/15 21:41:31
-     * Description: 插入数据，并设置初始的昵称
+     * @Author: 梁雨佳
+     * @Date: 2024/2/15 21:41:31
+     * @Description: 插入数据，并设置初始的昵称
      */
     private User insertUserWithPhone (String phone) {
         User user = new User();
