@@ -5,16 +5,31 @@
 <mapper namespace="com.hmdp.mapper.SeckillVoucherMapper">
 
     <resultMap id="BaseResultMap" type="com.hmdp.entity.SeckillVoucher">
-            <id property="voucherId" column="voucher_id" jdbcType="BIGINT"/>
-            <result property="stock" column="stock" jdbcType="INTEGER"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="beginTime" column="begin_time" jdbcType="TIMESTAMP"/>
-            <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <id property="voucherId" column="voucher_id" jdbcType="BIGINT"/>
+        <result property="stock" column="stock" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="beginTime" column="begin_time" jdbcType="TIMESTAMP"/>
+        <result property="endTime" column="end_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         voucher_id,stock,create_time,
         begin_time,end_time,update_time
     </sql>
+    <update id="updateWithLock">
+        update tb_seckill_voucher
+        <set>
+            stock = stock - 1
+        </set>
+        <where>
+            <if test="voucherId != null and voucherId != ''">
+                and voucher_id = #{voucherId}
+            </if>
+            <if test="stock != null and stock != ''">
+                and stock &gt; 0
+            </if>
+        </where>
+    </update>
+
 </mapper>

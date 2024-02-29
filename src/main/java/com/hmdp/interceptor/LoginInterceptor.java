@@ -1,6 +1,6 @@
 package com.hmdp.interceptor;
 
-import com.hmdp.utils.UserHolder;
+import com.hmdp.utils.UserHolderUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -18,7 +18,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle (HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //判断是否存在用户
-        if (UserHolder.getUser() == null) {
+        if (UserHolderUtil.getUser() == null) {
             response.setStatus(401);
             return false;
         }

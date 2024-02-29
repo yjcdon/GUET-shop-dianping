@@ -103,7 +103,6 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
         srt.delete(CACHE_SHOP_KEY + shop.getId());
 
         return Result.ok("更新成功！");
-
     }
 
     @Override

@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -134,5 +137,36 @@ public class MyRedisUtils {
 
     private void unlock (String lockKey) {
         srt.delete(lockKey);
+    }
+
+
+    // 开始时间戳
+    private static final long BEGIN_TIMESTAMP = 1612231322;
+    // 序列号的位数
+    private static final int COUNT_BITS = 32;
+
+    /**
+     * @Author: 梁雨佳
+     * @Date: 2024/2/20 10:31:44
+     * @Description: id生成方法，通过keyPrefix区分不同的业务
+     */
+    public long idGenerator (String keyPrefix) {
+        // ID结构：1位符号位，31为时间戳，32为序列号
+
+        // 生成时间戳
+        LocalDateTime now = LocalDateTime.now();
+        long currentSecond = now.toEpochSecond(ZoneOffset.UTC);
+        long timestamp = currentSecond - BEGIN_TIMESTAMP;
+
+        // 生成序列号
+        // 这个key不能一直不变，Redis的增长有上限
+        //这里决定用每天来做key的区分，额外的好处是可以做统计
+        String dateSuffix = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
+        long count = srt.opsForValue().increment("increment:" + keyPrefix + ":" + dateSuffix);
+
+        // 拼接并返回，但是返回的是long，拼接了无法返回
+        // 这里用的是位运算
+
+        return timestamp << COUNT_BITS | count;
     }
 }

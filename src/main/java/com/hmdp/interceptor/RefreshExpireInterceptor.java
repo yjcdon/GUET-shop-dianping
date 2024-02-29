@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.constants.RedisConstants;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.utils.UserHolderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
@@ -47,7 +47,7 @@ public class RefreshExpireInterceptor implements HandlerInterceptor {
         BeanUtil.fillBeanWithMap(userMap, userDTO, false);
 
         // 4.存在则保存到ThreadLocal
-        UserHolder.saveUser(userDTO);
+        UserHolderUtil.saveUser(userDTO);
 
         // 5.刷新有效期
         srt.expire(RedisConstants.LOGIN_USER_KEY + token, RedisConstants.LOGIN_USER_TTL, TimeUnit.MINUTES);
@@ -58,6 +58,6 @@ public class RefreshExpireInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion (HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // 移除用户
-        UserHolder.removeUser();
+        UserHolderUtil.removeUser();
     }
 }

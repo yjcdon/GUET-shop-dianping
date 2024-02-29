@@ -13,7 +13,7 @@ import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.RegexUtil;
 import com.hmdp.constants.SystemConstants;
-import com.hmdp.utils.UserHolder;
+import com.hmdp.utils.UserHolderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,14 +145,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Override
     public Result me () {
-        return Result.ok(UserHolder.getUser());
+        return Result.ok(UserHolderUtil.getUser());
     }
 
     @Override
     public Result logout (HttpServletRequest request) {
         String token = request.getHeader("authorization");
         srt.delete(token);
-        UserHolder.removeUser();
+        UserHolderUtil.removeUser();
         return Result.ok();
     }
 
