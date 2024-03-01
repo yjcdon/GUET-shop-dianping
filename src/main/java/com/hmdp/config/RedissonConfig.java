@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RedisConfig {
+public class RedissonConfig {
     @Bean
     public RedissonClient redissonClient () {
         Config config = new Config();
         // 多节点使用useClusterServer
-        config.useSingleServer().setAddress("redis://8.138.88.67:6379");
+        config.useSingleServer().setAddress("redis://8.138.88.67:6379").setPassword("lyj666666");
         return Redisson.create(config);
     }
 }

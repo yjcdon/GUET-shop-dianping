@@ -115,7 +115,7 @@ public class MyRedisUtils {
         try {
             // 再次检查缓存是否存在，这是有必要的
             String cacheData2 = srt.opsForValue().get(key);
-            if (cacheData2 != null || !cacheData2.isEmpty()) {
+            if (!cacheData2.isEmpty()) {
                 RedisDataDTO bean = JSONUtil.toBean(cacheData2, RedisDataDTO.class);
                 if (bean.getExpireTime().isAfter(LocalDateTime.now())) {
                     return JSONUtil.toBean(bean.getData().toString(), type);
@@ -160,7 +160,7 @@ public class MyRedisUtils {
 
         // 生成序列号
         // 这个key不能一直不变，Redis的增长有上限
-        //这里决定用每天来做key的区分，额外的好处是可以做统计
+        // 这里决定用每天来做key的区分，额外的好处是可以做统计
         String dateSuffix = now.format(DateTimeFormatter.ofPattern("yyyy:MM:dd"));
         long count = srt.opsForValue().increment("increment:" + keyPrefix + ":" + dateSuffix);
 

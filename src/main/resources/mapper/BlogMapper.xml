@@ -23,4 +23,18 @@
         liked,comments,create_time,
         update_time
     </sql>
+    <select id="queryUserDTOByIds" resultType="com.hmdp.dto.UserDTO">
+        select id,nick_name,icon
+        from tb_user
+        <where>
+            id in
+            <foreach collection="userIds" item="uid" open="(" separator="," close=")">
+                #{uid}
+            </foreach>
+        </where>
+        order by field(id,
+        <foreach collection="userIds" item="uid" separator=",">
+            #{uid}
+        </foreach>)
+    </select>
 </mapper>

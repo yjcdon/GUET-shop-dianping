@@ -25,9 +25,6 @@ public class VoucherOrderController {
     @Autowired
     private IVoucherOrderService voucherOrderService;
 
-    @Autowired
-    private StringRedisTemplate srt;
-
     @PostMapping("seckill/{id}")
     public Result seckillVoucher (@PathVariable("id") Long voucherId) {
         Result orderId = voucherOrderService.buySeckillVoucher(voucherId);

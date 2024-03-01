@@ -57,17 +57,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
         srt.opsForList().rightPushAll(CACHE_SHOP_TYPE_KEY,
                 MyConvertUtils.objectListToStringList(shopTypeList, type -> JSONUtil.toJsonStr(type)));
 
-        // if (shopTypeList != null) {
-        //     for (ShopType shopType : shopTypeList) {
-        //         // 源头放入Redis的格式就不能错，如果你直接把list中的对象放进Redis，它会要求变为String类型
-        //         // 而toString之后，就很难变成JSON了；所以要先转为JSON再放入Redis
-        //         String jsonStr = JSONUtil.toJsonStr(shopType);
-        //         srt.opsForList().rightPush(CACHE_SHOP_TYPE_KEY, jsonStr);
-        //     }
-        //     return shopTypeList;
-        // }
-
         // 查不到，返回null
-        return null;
+        return shopTypeList;
     }
 }

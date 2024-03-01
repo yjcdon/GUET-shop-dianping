@@ -34,7 +34,7 @@ public class ShopController {
      */
     @GetMapping("/{id}")
     public Result queryShopById (@PathVariable("id") Long id) throws Exception {
-        return Result.ok(shopService.queryById(id));
+        return shopService.queryById(id);
     }
 
     /**

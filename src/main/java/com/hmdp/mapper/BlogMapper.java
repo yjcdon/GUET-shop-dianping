@@ -1,7 +1,12 @@
 package com.hmdp.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Blog;
+import com.hmdp.entity.User;
+
+import java.util.List;
+import java.util.Set;
 
 /**
 * @author lyj
@@ -11,6 +16,7 @@ import com.hmdp.entity.Blog;
 */
 public interface BlogMapper extends BaseMapper<Blog> {
 
+    List<UserDTO> queryUserDTOByIds (Set<String> userIds);
 }
 
 
