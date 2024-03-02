@@ -24,4 +24,8 @@ public interface IBlogService extends IService<Blog> {
     Result likeBlog (Long id);
 
     List<UserDTO> queryTop5 (Long id);
+
+    Result saveBlogAndPush (Blog blog);
+
+    Result queryBlogOfFollow (Long maxTime, Integer offset);
 }

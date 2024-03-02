@@ -1,7 +1,10 @@
 package com.hmdp.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
+
+import java.util.List;
 
 /**
 * @author lyj
@@ -11,6 +14,7 @@ import com.hmdp.entity.User;
 */
 public interface UserMapper extends BaseMapper<User> {
 
+    List<UserDTO> queryCommon (List<Long> userIdList);
 }
 
 

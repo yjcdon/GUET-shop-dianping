@@ -17,6 +17,7 @@ import java.util.Set;
 public interface BlogMapper extends BaseMapper<Blog> {
 
     List<UserDTO> queryUserDTOByIds (Set<String> userIds);
+
 }
 
 

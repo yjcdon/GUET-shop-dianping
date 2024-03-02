@@ -1,23 +1,24 @@
 package com.hmdp.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.constants.SystemConstants;
+import com.hmdp.dto.ScrollResultDTO;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.Blog;
+import com.hmdp.entity.Follow;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.BlogMapper;
+import com.hmdp.mapper.FollowMapper;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.result.Result;
 import com.hmdp.service.IBlogService;
-import com.hmdp.service.IUserService;
 import com.hmdp.utils.UserHolderUtil;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,8 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.hmdp.constants.RedisConstants.BLOG_DETAIL_KEY;
-import static com.hmdp.constants.RedisConstants.BLOG_LIKED_KEY;
+import static com.hmdp.constants.RedisConstants.*;
 
 /**
  * <p>
@@ -47,6 +47,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private FollowMapper followMapper;
 
     /**
      * @Author: 梁雨佳
@@ -126,6 +129,14 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         return null;
     }
 
+    /**
+     * @Author: 梁雨佳
+     * @Date: 2024/3/2 17:30:54
+     * @Params:
+     * @Return:
+     * @Description: 查询并设置该blog是否被当前用户点过赞
+     */
+
     private void isBlogLiked (Blog blog) {
         Long userId = blog.getUserId();
         String key = BLOG_DETAIL_KEY + blog.getId();
@@ -133,10 +144,101 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         blog.setIsLike(isLike != null);
     }
 
+    /**
+     * @Author: 梁雨佳
+     * @Date: 2024/3/2 17:30:10
+     * @Params:
+     * @Return:
+     * @Description: 设置该blog的发布者的name和投降
+     */
     private void queryUserAndSetBlog (Blog blog) {
         Long userId = blog.getUserId();
         User user = userMapper.selectById(userId);
         blog.setName(user.getNickName());
         blog.setIcon(user.getIcon());
+    }
+
+    @Override
+    public Result saveBlogAndPush (Blog blog) {
+        // 获取登录用户
+        UserDTO user = UserHolderUtil.getUser();
+        blog.setUserId(user.getId());
+        // 保存探店博文
+        int isSuccess = blogMapper.insert(blog);
+
+        if (isSuccess <= 0) {
+            return Result.fail("发送失败！");
+        }
+
+        // 查询当前用户的粉丝
+        Long userId = user.getId();
+        LambdaQueryWrapper<Follow> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Follow::getFollowUserId, userId);
+        List<Follow> follows = followMapper.selectList(queryWrapper);// 当前用户的粉丝列表
+        if (!follows.isEmpty()) {
+            for (Follow follow : follows) {
+                // 获取粉丝id
+                Long followUserId = follow.getUserId();
+                // 推送给每个粉丝，每个粉丝都有一个收件箱，使用zset实现收件箱
+                String key = FEED_KEY + followUserId;
+                srt.opsForZSet().add(key, blog.getId().toString(), System.currentTimeMillis());
+            }
+        }
+        return Result.ok(blog.getId());
+    }
+
+    @Override
+    public Result queryBlogOfFollow (Long maxTime, Integer offset) {
+        // 获取当前用户
+        Long userId = UserHolderUtil.getUser().getId();
+
+        // 查询收件箱
+        String key = FEED_KEY + userId;
+
+        // 滚动分页查询：ZREVRANGEBYSCORE key Max Min LIMIT offset count
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = srt.opsForZSet()
+                .reverseRangeByScoreWithScores(key, 0, maxTime, offset, 3);
+        if (typedTuples.isEmpty()) {
+            return Result.ok();
+        }
+
+        // 解析数据：有blogId，minTime（时间戳），offset
+        List<Long> blogIds = new ArrayList<>(typedTuples.size());
+        long minTime = 0;
+        int os = 1;
+        for (ZSetOperations.TypedTuple<String> type : typedTuples) {
+            // 获取blogID
+            blogIds.add(Long.valueOf(type.getValue()));
+            // 获取这条数据对应的时间戳，这是栈吗，集合最后一个保证时间戳是最小的？
+            long time = type.getScore().longValue();
+
+            // 找出offset，就是zset中重复score的元素个数
+            // 比如是5 4 4 2 2，第一次是5，minTime就是5；第二次是4，minTime是4；第三次是4，os++，以此类推
+            if (time == minTime) {
+                os++;
+            } else {
+                minTime = time;
+                os = 1;
+            }
+        }
+
+        // 根据blogIds查询blog
+        String idStr = StrUtil.join(",", blogIds);
+        List<Blog> blogList = query()
+                .in("id", blogIds).last("ORDER BY FIELD(id," + idStr + ")")
+                .list();
+        for (Blog blog : blogList) {
+            // 查询和设置每条blog的相关信息
+            queryUserAndSetBlog(blog);
+            isBlogLiked(blog);
+        }
+
+        // 封装结果并返回
+        ScrollResultDTO res = new ScrollResultDTO();
+        res.setList(blogList);
+        res.setOffset(os);
+        res.setMinTime(minTime);
+
+        return Result.ok(res);
     }
 }

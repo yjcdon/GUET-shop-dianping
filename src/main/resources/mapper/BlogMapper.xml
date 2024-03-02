@@ -37,4 +37,7 @@
             #{uid}
         </foreach>)
     </select>
+    <select id="queryBatchIds" resultType="com.hmdp.entity.Blog">
+        select id,
+    </select>
 </mapper>

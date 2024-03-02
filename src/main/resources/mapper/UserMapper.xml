@@ -19,5 +19,15 @@
         nick_name,icon,create_time,
         update_time
     </sql>
+    <select id="queryCommon" resultType="com.hmdp.dto.UserDTO">
+        select id,nick_name,icon
+        from tb_user
+        <where>
+            id in
+            <foreach collection="userIdList" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </where>
+    </select>
 
 </mapper>
