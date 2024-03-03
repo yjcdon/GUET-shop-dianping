@@ -101,6 +101,6 @@ public class Shop implements Serializable {
     private LocalDateTime updateTime;
 
 
-    // @TableField(exist = false)
-    // private Double distance;
+    @TableField(exist = false)
+    private Double distance;
 }

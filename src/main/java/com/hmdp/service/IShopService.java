@@ -21,6 +21,5 @@ public interface IShopService extends IService<Shop> {
 
     Result updateByIdAndDelCache (Shop shop);
 
-    Page<Shop> queryPage (Integer typeId, Page<Shop> page);
-
+    Result queryShopByType (Integer typeId, Integer current, Double x, Double y);
 }

@@ -65,7 +65,7 @@ public class ShopController {
     }
 
     /**
-     * 根据商铺类型分页查询商铺信息
+     * 根据商铺类型分页查询商铺信息，增加新功能：查出商家与当前位置的距离，需要提前将数据导入Redis
      *
      * @param typeId  商铺类型
      * @param current 页码
@@ -74,13 +74,11 @@ public class ShopController {
     @GetMapping("/of/type")
     public Result queryShopByType (
             @RequestParam("typeId") Integer typeId,
-            @RequestParam(value = "current", defaultValue = "1") Integer current) {
-
-        Page<Shop> page = new Page<>(current, SystemConstants.DEFAULT_PAGE_SIZE);
-        // 根据类型分页查询
-        Page<Shop> result = shopService.queryPage(typeId, page);
-        // 返回数据
-        return Result.ok(result.getRecords());
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "x", required = false) Double x,
+            @RequestParam(value = "y", required = false) Double y
+    ) {
+        return shopService.queryShopByType(typeId, current, x, y);
     }
 
     /**
