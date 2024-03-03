@@ -3,6 +3,7 @@ package com.hmdp.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
+import com.hmdp.result.Result;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
 
     List<UserDTO> queryCommon (List<Long> userIdList);
+
+    Result signCount ();
 }
 
 

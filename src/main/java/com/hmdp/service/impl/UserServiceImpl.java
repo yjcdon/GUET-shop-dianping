@@ -5,18 +5,19 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.constants.SystemConstants;
 import com.hmdp.dto.LoginFormDTO;
-import com.hmdp.result.Result;
 import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
+import com.hmdp.result.Result;
 import com.hmdp.service.IUserService;
 import com.hmdp.utils.RegexUtil;
-import com.hmdp.constants.SystemConstants;
 import com.hmdp.utils.UserHolderUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.BitFieldSubCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -155,5 +158,79 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         UserHolderUtil.removeUser();
         return Result.ok();
     }
+
+    @Override
+    public Result userSign () {
+        // 获取当前用户
+        Long userId = UserHolderUtil.getUser().getId();
+
+        // 获取日期
+        LocalDateTime now = LocalDateTime.now();
+        String keySuffix = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        // 封装key
+        String key = USER_SIGN_KEY + userId + ":" + keySuffix;
+
+        // 得到今天是这个月的第几天，这样才能给对应BitMap索引赋值
+        int dayOfMonth = now.getDayOfMonth();
+
+        // 写入Redis，设置BitMap的值
+        // 因为所以是从0开始，所以这里要-1；true代表写入1，使用boolean只需要1字节，int要4字节
+        srt.opsForValue().setBit(key, dayOfMonth - 1, true);
+
+        // 返回
+        return Result.ok();
+    }
+
+    @Override
+    public Result signCount () {
+        // 获取当前用户
+        Long userId = UserHolderUtil.getUser().getId();
+
+        // 获取日期
+        LocalDateTime now = LocalDateTime.now();
+        String keySuffix = now.format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        // 封装key
+        String key = USER_SIGN_KEY + userId + ":" + keySuffix;
+
+        // 得到今天是这个月的第几天，这样才能给对应BitMap索引赋值
+        int dayOfMonth = now.getDayOfMonth();
+
+        // 今天是本月的第几天，就去查多少个bit
+        // BITFIELD key GET u3 0
+        List<Long> results = srt.opsForValue().bitField(key,
+                BitFieldSubCommands.create()
+                        .get(BitFieldSubCommands.BitFieldType.unsigned(dayOfMonth))
+                        .valueAt(0)
+        );
+
+        // 空说明没签到
+        if (results.isEmpty()) {
+            return Result.ok(0);
+        }
+
+        Long num = results.get(0);
+        if (num == null) {
+            return Result.ok(0);
+        }
+        // 因为只是get，所以这个集合只有一个值
+        // 循环遍历十进制，让这位数字和1做与运算，判断它是否为0
+        int count = 0;
+        while (true) {
+            // 数字和1做and运算
+            if ((num & 1) == 0) {
+                // 是0就结束
+                break;
+            } else {
+                // 不是0就计数器+1
+                count++;
+            }
+            // 数字右移一位，这样才能判断下一个bit
+            num = num >> 1;
+        }
+        return Result.ok(count);
+    }
+
 
 }

@@ -2,11 +2,8 @@ package com.hmdp.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.hmdp.constants.SystemConstants;
 import com.hmdp.dto.LoginFormDTO;
 import com.hmdp.dto.UserDTO;
-import com.hmdp.entity.Blog;
 import com.hmdp.entity.User;
 import com.hmdp.entity.UserInfo;
 import com.hmdp.result.Result;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.List;
 
 /**
  * <p>
@@ -101,6 +97,16 @@ public class UserController {
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
         // 返回
         return Result.ok(userDTO);
+    }
+
+    @PostMapping("/sign")
+    public Result userSign () {
+        return userService.userSign();
+    }
+
+    @GetMapping("/sign/count")
+    public Result signCount () {
+        return userService.signCount();
     }
 
 }
