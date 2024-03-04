@@ -49,7 +49,7 @@ class HmDianPingApplicationTests {
     public void testSaveShopData () {
         Long id = 1L;
         Shop shop = shopService.getById(1L);
-        redisUtils.setWithLogicalExpire(CACHE_SHOP_KEY + id, shop, 20L, TimeUnit.SECONDS);
+        redisUtils.setWithLogicalExpire(CACHE_SHOP_KEY + id, shop, 20L, TimeUnit.MINUTES);
     }
 
     @Test
@@ -103,6 +103,23 @@ class HmDianPingApplicationTests {
         latch.await();
         long end = System.currentTimeMillis();
         System.out.println("time = " + (end - begin));
+    }
+
+    @Test
+    void testHyperLogLog () {
+        String[] values = new String[1000];
+        int j;
+        for (int i = 0; i < 1000000; i++) {
+            j = i % 1000;
+            values[j] = "user_" + i;
+            if (j == 999) {
+                // 发送到Redis
+                srt.opsForHyperLogLog().add("hl2", values);
+            }
+        }
+        // 统计数量
+        Long count = srt.opsForHyperLogLog().size("hl2");
+        System.out.println("count = " + count);
     }
 
 }
