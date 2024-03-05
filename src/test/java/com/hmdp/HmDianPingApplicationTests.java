@@ -2,6 +2,7 @@ package com.hmdp;
 
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
+import com.hmdp.mapper.VoucherMapper;
 import com.hmdp.service.IShopService;
 import com.hmdp.utils.MyRedisUtils;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -41,6 +43,9 @@ class HmDianPingApplicationTests {
 
     @Resource
     private RedissonClient redissonClient;
+
+    @Autowired
+    private VoucherMapper voucherMapper;
 
     @Autowired
     private ShopMapper shopMapper;
@@ -120,6 +125,28 @@ class HmDianPingApplicationTests {
         // 统计数量
         Long count = srt.opsForHyperLogLog().size("hl2");
         System.out.println("count = " + count);
+    }
+
+    @Test
+    public void testBitSet () {
+        int[] array = {3, 8, 5, 7, 1};
+        BitSet bitSet = new BitSet(5);
+
+        for (int i = 0; i < array.length; i++) {
+            bitSet.set(array[i], true);
+        }
+
+        bitSet.stream().forEach(e -> System.out.println(e));
+        System.out.println(bitSet.get(10));
+    }
+
+    @Test
+    public void testBitmap () {
+        // 把所有的店铺ID写入Redis的BitMap
+        List<Shop> shops = shopMapper.selectList(null);
+        for (Shop shop : shops) {
+            srt.opsForValue().setBit("shopIds", shop.getId() % 100000, true);
+        }
     }
 
 }

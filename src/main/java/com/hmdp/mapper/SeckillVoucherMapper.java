@@ -12,7 +12,7 @@ import com.hmdp.entity.VoucherOrder;
  */
 public interface SeckillVoucherMapper extends BaseMapper<SeckillVoucher> {
 
-    boolean updateWithLock (VoucherOrder voucherOrder);
+    boolean updateWithLock (SeckillVoucher seckillVoucher);
 }
 
 

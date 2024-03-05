@@ -48,6 +48,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
 
     @Override
     public Result queryById (Long id) throws Exception {
+        // 如果查询的是不存在的店铺呢？来个缓存穿透，这里要用BitMap来处理
+        Boolean isExist = srt.opsForValue().getBit("shopIds", id % 100000);
+        if (!Boolean.TRUE.equals(isExist)) {
+            return Result.fail("店铺不存在！");
+        }
+
         // 逻辑删除解决缓存击穿
         Shop shop = redisUtils.getWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class,
                 CACHE_SHOP_TTL + random.nextInt(5), TimeUnit.MINUTES,

@@ -47,8 +47,30 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
 
     @Override
     public Result queryVoucherOfShop (Long shopId) {
+        if (shopId < 0) {
+            return Result.fail("店铺不存在！");
+        }
+
+        // 如果查询的是不存在的店铺呢？来个缓存穿透，这里要用BitMap来处理
+        Boolean isExist = srt.opsForValue().getBit("shopIds", shopId % 100000);
+        if (!Boolean.TRUE.equals(isExist)) {
+            return Result.fail("店铺不存在！");
+        }
+
+
         // 查询优惠券信息
         List<Voucher> vouchers = getBaseMapper().queryVoucherOfShop(shopId);
+
+        if (!vouchers.isEmpty()) {
+            // 写入Redis
+            for (Voucher voucher : vouchers) {
+                String key = SECKILL_STOCK_KEY + voucher.getId();
+                if (voucher.getStock() != null) {
+                    srt.opsForValue().set(key, voucher.getStock().toString());
+                }
+            }
+        }
+
         // 返回结果
         return Result.ok(vouchers);
     }
