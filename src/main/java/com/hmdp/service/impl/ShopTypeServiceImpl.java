@@ -36,7 +36,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType> i
 
 
     @Override
-    public List<ShopType> getByCacheOrList () {
+    public List<ShopType> queryByCacheOrList () {
         // 先从Redis中获取
         List<String> cacheTypes = srt.opsForList().range(CACHE_SHOP_TYPE_KEY, 0, -1);
 

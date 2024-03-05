@@ -3,6 +3,7 @@ package com.hmdp.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.annotation.JudgeIdExist;
 import com.hmdp.constants.SystemConstants;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
@@ -47,13 +48,8 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     private MyRedisUtils redisUtils;
 
     @Override
+    @JudgeIdExist(key = "shopIds")// 记得提前将店铺数据加载到Redis中，不然查不出来
     public Result queryById (Long id) throws Exception {
-        // 如果查询的是不存在的店铺呢？来个缓存穿透，这里要用BitMap来处理
-        Boolean isExist = srt.opsForValue().getBit("shopIds", id % 100000);
-        if (!Boolean.TRUE.equals(isExist)) {
-            return Result.fail("店铺不存在！");
-        }
-
         // 逻辑删除解决缓存击穿
         Shop shop = redisUtils.getWithLogicalExpire(CACHE_SHOP_KEY, id, Shop.class,
                 CACHE_SHOP_TTL + random.nextInt(5), TimeUnit.MINUTES,

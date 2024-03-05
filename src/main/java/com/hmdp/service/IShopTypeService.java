@@ -16,5 +16,5 @@ import java.util.List;
  */
 public interface IShopTypeService extends IService<ShopType> {
 
-    List<ShopType> getByCacheOrList () throws JsonProcessingException;
+    List<ShopType> queryByCacheOrList () throws JsonProcessingException;
 }

@@ -1,6 +1,7 @@
 package com.hmdp.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.annotation.JudgeIdExist;
 import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.Voucher;
 import com.hmdp.mapper.SeckillVoucherMapper;
@@ -46,18 +47,8 @@ public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> impl
     private StringRedisTemplate srt;
 
     @Override
+    @JudgeIdExist(key = "shopIds")
     public Result queryVoucherOfShop (Long shopId) {
-        if (shopId < 0) {
-            return Result.fail("店铺不存在！");
-        }
-
-        // 如果查询的是不存在的店铺呢？来个缓存穿透，这里要用BitMap来处理
-        Boolean isExist = srt.opsForValue().getBit("shopIds", shopId % 100000);
-        if (!Boolean.TRUE.equals(isExist)) {
-            return Result.fail("店铺不存在！");
-        }
-
-
         // 查询优惠券信息
         List<Voucher> vouchers = getBaseMapper().queryVoucherOfShop(shopId);
 
