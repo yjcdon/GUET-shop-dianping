@@ -19,29 +19,11 @@ import java.util.List;
 
 import static com.hmdp.constants.RedisConstants.SECKILL_STOCK_KEY;
 
-/**
- * <p>
- * 服务实现类
- * </p>
- *
- * @author 虎哥
- * @since 2021-12-22
- */
 @Service
 public class VoucherServiceImpl extends ServiceImpl<VoucherMapper, Voucher> implements IVoucherService {
 
     @Autowired
     private SeckillVoucherMapper seckillVoucherMapper;
-
-    @Autowired
-    private VoucherMapper voucherMapper;
-
-    @Autowired
-    private MyRedisUtils redisUtils;
-
-    @Autowired
-    private VoucherOrderMapper voucherOrderMapper;
-
 
     @Autowired
     private StringRedisTemplate srt;

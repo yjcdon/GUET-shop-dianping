@@ -3,6 +3,7 @@ package com.hmdp.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.hmdp.annotation.JudgeIdExist;
 import com.hmdp.constants.SystemConstants;
 import com.hmdp.entity.Shop;
 import com.hmdp.result.Result;

@@ -149,4 +149,8 @@ class HmDianPingApplicationTests {
         }
     }
 
+    @Test
+    public void testScan () {
+    }
+
 }

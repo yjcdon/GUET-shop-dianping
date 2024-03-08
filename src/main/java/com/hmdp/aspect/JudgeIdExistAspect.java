@@ -1,6 +1,7 @@
 package com.hmdp.aspect;
 
 import com.hmdp.annotation.JudgeIdExist;
+import com.hmdp.result.Result;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -37,11 +38,12 @@ public class JudgeIdExistAspect {
         Long id = (Long) ids[0];
 
         if (id < 0) {
-            throw new RuntimeException("id不存在");
+            return Result.fail("id不存在");
         }
 
         // 判断BitMap中是否存在ID
-        Boolean isExist = srt.opsForValue().getBit(key, id % 100000);
+        int hashVal = Math.abs(id.hashCode());
+        Boolean isExist = srt.opsForValue().getBit(key, hashVal % 100000);
         if (!Boolean.TRUE.equals(isExist)) {
             throw new RuntimeException("id不存在");
         }

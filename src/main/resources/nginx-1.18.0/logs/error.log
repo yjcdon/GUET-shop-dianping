@@ -5548,3 +5548,5 @@
 2024/03/04 21:53:50 [error] 11100#11856: *92 CreateFile() "D:\java\hmdp\src\main\resources\nginx-1.18.0/html/hmdp/js/axios.min.map" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /js/axios.min.map HTTP/1.1", host: "localhost:8082"
 2024/03/04 21:55:34 [error] 11100#11856: *97 CreateFile() "D:\java\hmdp\src\main\resources\nginx-1.18.0/html/hmdp/js/axios.min.map" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /js/axios.min.map HTTP/1.1", host: "localhost:8082"
 2024/03/04 22:05:21 [error] 11100#11856: *108 CreateFile() "D:\java\hmdp\src\main\resources\nginx-1.18.0/html/hmdp/js/axios.min.map" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /js/axios.min.map HTTP/1.1", host: "localhost:8082"
+2024/03/05 22:33:27 [alert] 3468#3892: worker process 9992 exited with code C0000142
+2024/03/05 22:33:27 [alert] 3468#3892: could not respawn worker
