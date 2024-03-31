@@ -6,4 +6,6 @@ import lombok.Data;
 public class VoucherOrderIdDTO {
     private Long orderId;
     private Long voucherId;
+    private Long userId;
+
 }

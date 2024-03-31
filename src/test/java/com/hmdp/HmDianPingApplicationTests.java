@@ -1,19 +1,32 @@
 package com.hmdp;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.hmdp.constants.MQConstants;
+import com.hmdp.dto.VoucherOrderIdDTO;
+import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.Shop;
+import com.hmdp.entity.VoucherOrder;
+import com.hmdp.mapper.SeckillVoucherMapper;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.mapper.VoucherMapper;
+import com.hmdp.mapper.VoucherOrderMapper;
 import com.hmdp.service.IShopService;
 import com.hmdp.utils.MyRedisUtils;
+import com.hmdp.utils.UserHolderUtil;
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RedissonClient;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -24,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.hmdp.constants.MQConstants.CREATE_ORDER_EXCHANGE;
 import static com.hmdp.constants.RedisConstants.CACHE_SHOP_KEY;
 import static com.hmdp.constants.RedisConstants.SHOP_GEO_KEY;
 
@@ -40,6 +54,15 @@ class HmDianPingApplicationTests {
     private IShopService shopService;
 
     private ExecutorService es = Executors.newFixedThreadPool(500);
+
+    @Autowired
+    private VoucherMapper voucherMapper;
+
+    @Autowired
+    private VoucherOrderMapper voucherOrderMapper;
+
+    @Autowired
+    private SeckillVoucherMapper seckillVoucherMapper;
 
     @Autowired
     private ShopMapper shopMapper;
@@ -144,7 +167,38 @@ class HmDianPingApplicationTests {
     }
 
     @Test
-    public void testScan () {
+    @RabbitListener(bindings = @QueueBinding(
+            value = @Queue(name = MQConstants.CREATE_ORDER_QUEUE, durable = "true"),
+            exchange = @Exchange(name = CREATE_ORDER_EXCHANGE, type = ExchangeTypes.TOPIC),
+            key = {"order"}
+    ))
+    @Transactional
+    public void createVoucherOrder (@RequestBody VoucherOrderIdDTO voucherOrderIdDTO) {
+        Long orderId = voucherOrderIdDTO.getOrderId();
+        Long voucherId = voucherOrderIdDTO.getVoucherId();
+        Long userId = voucherOrderIdDTO.getUserId();
+
+        VoucherOrder voucherOrder = new VoucherOrder();
+        voucherOrder.setId(orderId)
+                .setUserId(userId)
+                .setVoucherId(voucherId);
+
+        int success = voucherOrderMapper.insert(voucherOrder);
+
+        // 插入成功，更新库存
+        if (success > 0) {
+            updateStock(voucherId);
+        }
+    }
+
+    private void updateStock (Long voucherId) {
+        LambdaQueryWrapper<SeckillVoucher> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SeckillVoucher::getVoucherId, voucherId);
+        SeckillVoucher seckillVoucher = seckillVoucherMapper.selectOne(queryWrapper);
+        if (seckillVoucher != null) {
+            // 更新库存，通过乐观锁防止超卖
+            seckillVoucherMapper.updateWithLock(seckillVoucher);
+        }
     }
 
 }

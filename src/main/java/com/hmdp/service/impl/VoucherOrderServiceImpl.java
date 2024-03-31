@@ -3,6 +3,7 @@ package com.hmdp.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.constants.MQConstants;
+import com.hmdp.dto.VoucherOrderIdDTO;
 import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.VoucherOrder;
 import com.hmdp.mapper.SeckillVoucherMapper;
@@ -17,13 +18,13 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -64,7 +65,7 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
     }
 
     @Override
-    public Result buySeckillVoucher (Long voucherId) throws ExecutionException, InterruptedException {
+    public Result buySeckillVoucher (Long voucherId) {
         Long userId = UserHolderUtil.getUser().getId();
 
         // 执行Lua脚本，获得脚本的返回值；但是在执行前它会去Redis中查库存，你要提前将优惠券信息写入Redis
@@ -80,44 +81,50 @@ public class VoucherOrderServiceImpl extends ServiceImpl<VoucherOrderMapper, Vou
         }
 
         // 可以下单，这里应该是加分布式锁的地方，不是分布式，通过Lua脚本可以实现一人一单了
-        /*rabbitTemplate.convertAndSend(CREATE_ORDER_EXCHANGE, voucherOrderIdDTO);
-        这里需要传两个id过去，但是API不能传两个，所以如果要改成微服务，就传个对象过去，其他不用变
-        */
         Long orderId = redisUtils.idGenerator(CACHE_ORDER_KEY + voucherId);
-        // 防止事务失效，其实我也不太懂
-        // @Transactional 自调用(实际上是目标对象内的方法调用目标对象的另一个方法)在运行时不会导致实际的事务
-        IVoucherOrderService proxy = (IVoucherOrderService) AopContext.currentProxy();
-        proxy.createVoucherOrder(orderId, voucherId);
+        VoucherOrderIdDTO voucherOrderIdDTO = new VoucherOrderIdDTO();
+        voucherOrderIdDTO.setOrderId(orderId);
+        voucherOrderIdDTO.setVoucherId(voucherId);
+        voucherOrderIdDTO.setUserId(userId); // 测试发现不加这个会报空指针异常
+
+        rabbitTemplate.convertAndSend(CREATE_ORDER_EXCHANGE, "order", voucherOrderIdDTO);
 
         // 返回订单ID
         return Result.ok(orderId);
     }
 
-    // 这里，微服务就生效了，但现在就是单个进程，所以只能用多线程来搞
-    /*@RabbitListener(bindings = @QueueBinding(
+    @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = MQConstants.CREATE_ORDER_QUEUE, durable = "true"),
-            exchange = @Exchange(name = CREATE_ORDER_EXCHANGE, type = ExchangeTypes.TOPIC)
-    ))*/
+            exchange = @Exchange(name = CREATE_ORDER_EXCHANGE, type = ExchangeTypes.TOPIC),
+            key = {"order"}
+    ))
     @Transactional
     @Override
-    public void createVoucherOrder (Long orderId, Long voucherId) {
+    public void createVoucherOrder (VoucherOrderIdDTO voucherOrderIdDTO) {
+        Long orderId = voucherOrderIdDTO.getOrderId();
+        Long voucherId = voucherOrderIdDTO.getVoucherId();
+        Long userId = voucherOrderIdDTO.getUserId();
 
         VoucherOrder voucherOrder = new VoucherOrder();
         voucherOrder.setId(orderId)
-                .setUserId(UserHolderUtil.getUser().getId())
+                .setUserId(userId)
                 .setVoucherId(voucherId);
 
         int success = voucherOrderMapper.insert(voucherOrder);
 
         // 插入成功，更新库存
         if (success > 0) {
-            LambdaQueryWrapper<SeckillVoucher> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SeckillVoucher::getVoucherId, voucherId);
-            SeckillVoucher seckillVoucher = seckillVoucherMapper.selectOne(queryWrapper);
-            if (seckillVoucher != null) {
-                // 更新库存，通过乐观锁防止超卖
-                seckillVoucherMapper.updateWithLock(seckillVoucher);
-            }
+            updateStock(voucherId);
+        }
+    }
+
+    private void updateStock (Long voucherId) {
+        LambdaQueryWrapper<SeckillVoucher> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SeckillVoucher::getVoucherId, voucherId);
+        SeckillVoucher seckillVoucher = seckillVoucherMapper.selectOne(queryWrapper);
+        if (seckillVoucher != null) {
+            // 更新库存，通过乐观锁防止超卖
+            seckillVoucherMapper.updateWithLock(seckillVoucher);
         }
     }
 
