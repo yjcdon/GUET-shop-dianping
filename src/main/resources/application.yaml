@@ -32,9 +32,9 @@ spring:
     password: 123456
 
 mybatis-plus:
-  type-aliases-package: com.hmdp.entity # 别名扫描包
+  type-aliases-package: com.guet.entity # 别名扫描包
   global-config:
     banner: false
 logging:
   level:
-    com.GUET: debug
+    com.guet: debug

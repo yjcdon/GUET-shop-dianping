@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hmdp.mapper.UserInfoMapper">
+<mapper namespace="com.guet.mapper.UserInfoMapper">
 
-    <resultMap id="BaseResultMap" type="com.GUET.entity.UserInfo">
+    <resultMap id="BaseResultMap" type="com.guet.entity.UserInfo">
             <id property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="city" column="city" jdbcType="VARCHAR"/>
             <result property="introduce" column="introduce" jdbcType="VARCHAR"/>

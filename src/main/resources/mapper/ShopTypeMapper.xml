@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hmdp.mapper.ShopTypeMapper">
+<mapper namespace="com.guet.mapper.ShopTypeMapper">
 
-    <resultMap id="BaseResultMap" type="com.GUET.entity.ShopType">
+    <resultMap id="BaseResultMap" type="com.guet.entity.ShopType">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="icon" column="icon" jdbcType="VARCHAR"/>

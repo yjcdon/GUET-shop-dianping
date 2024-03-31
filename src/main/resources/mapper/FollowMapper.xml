@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hmdp.mapper.FollowMapper">
+<mapper namespace="com.guet.mapper.FollowMapper">
 
-    <resultMap id="BaseResultMap" type="com.GUET.entity.Follow">
+    <resultMap id="BaseResultMap" type="com.guet.entity.Follow">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="followUserId" column="follow_user_id" jdbcType="BIGINT"/>

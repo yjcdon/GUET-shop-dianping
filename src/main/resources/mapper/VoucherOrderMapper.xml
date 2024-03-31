@@ -2,9 +2,9 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hmdp.mapper.VoucherOrderMapper">
+<mapper namespace="com.guet.mapper.VoucherOrderMapper">
 
-    <resultMap id="BaseResultMap" type="com.GUET.entity.VoucherOrder">
+    <resultMap id="BaseResultMap" type="com.guet.entity.VoucherOrder">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
             <result property="voucherId" column="voucher_id" jdbcType="BIGINT"/>
