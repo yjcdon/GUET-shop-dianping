@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hmdp.mapper.BlogMapper">
 
-    <resultMap id="BaseResultMap" type="com.hmdp.entity.Blog">
+    <resultMap id="BaseResultMap" type="com.GUET.entity.Blog">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="shopId" column="shop_id" jdbcType="BIGINT"/>
             <result property="userId" column="user_id" jdbcType="BIGINT"/>
@@ -23,7 +23,7 @@
         liked,comments,create_time,
         update_time
     </sql>
-    <select id="queryUserDTOByIds" resultType="com.hmdp.dto.UserDTO">
+    <select id="queryUserDTOByIds" resultType="com.GUET.dto.UserDTO">
         select id,nick_name,icon
         from tb_user
         <where>
@@ -37,7 +37,7 @@
             #{uid}
         </foreach>)
     </select>
-    <select id="queryBatchIds" resultType="com.hmdp.entity.Blog">
+    <select id="queryBatchIds" resultType="com.GUET.entity.Blog">
         select id,
     </select>
 </mapper>

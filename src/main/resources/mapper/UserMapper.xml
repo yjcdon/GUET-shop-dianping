@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hmdp.mapper.UserMapper">
 
-    <resultMap id="BaseResultMap" type="com.hmdp.entity.User">
+    <resultMap id="BaseResultMap" type="com.GUET.entity.User">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="phone" column="phone" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
@@ -19,7 +19,7 @@
         nick_name,icon,create_time,
         update_time
     </sql>
-    <select id="queryCommon" resultType="com.hmdp.dto.UserDTO">
+    <select id="queryCommon" resultType="com.GUET.dto.UserDTO">
         select id,nick_name,icon
         from tb_user
         <where>

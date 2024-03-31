@@ -37,4 +37,4 @@ mybatis-plus:
     banner: false
 logging:
   level:
-    com.hmdp: debug
+    com.GUET: debug

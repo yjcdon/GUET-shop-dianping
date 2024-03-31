@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hmdp.mapper.ShopMapper">
 
-    <resultMap id="BaseResultMap" type="com.hmdp.entity.Shop">
+    <resultMap id="BaseResultMap" type="com.GUET.entity.Shop">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="typeId" column="type_id" jdbcType="BIGINT"/>
