@@ -1,9 +1,12 @@
 package com.hmdp.service;
 
+import com.hmdp.dto.VoucherOrderIdDTO;
 import com.hmdp.entity.SeckillVoucher;
 import com.hmdp.entity.VoucherOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.hmdp.result.Result;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -15,7 +18,8 @@ import com.hmdp.result.Result;
  */
 public interface IVoucherOrderService extends IService<VoucherOrder> {
 
-    Result buySeckillVoucher (Long voucherId);
+    Result buySeckillVoucher (Long voucherId) throws ExecutionException, InterruptedException;
 
-    int createVoucherOrder (Long orderId,Long voucherId);
+    void createVoucherOrder (Long orderId,Long voucherId);
+
 }

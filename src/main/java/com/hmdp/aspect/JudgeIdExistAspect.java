@@ -45,7 +45,7 @@ public class JudgeIdExistAspect {
         int hashVal = Math.abs(id.hashCode());
         Boolean isExist = srt.opsForValue().getBit(key, hashVal % 100000);
         if (!Boolean.TRUE.equals(isExist)) {
-            throw new RuntimeException("id不存在");
+            return Result.fail("id不存在");
         }
 
         // 执行原本的方法

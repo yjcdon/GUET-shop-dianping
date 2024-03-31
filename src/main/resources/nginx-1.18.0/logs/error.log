@@ -5550,3 +5550,4 @@
 2024/03/04 22:05:21 [error] 11100#11856: *108 CreateFile() "D:\java\hmdp\src\main\resources\nginx-1.18.0/html/hmdp/js/axios.min.map" failed (2: The system cannot find the file specified), client: 127.0.0.1, server: localhost, request: "GET /js/axios.min.map HTTP/1.1", host: "localhost:8082"
 2024/03/05 22:33:27 [alert] 3468#3892: worker process 9992 exited with code C0000142
 2024/03/05 22:33:27 [alert] 3468#3892: could not respawn worker
+2024/03/08 18:24:49 [error] 16252#4624: *12 upstream timed out (10060: A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond) while reading response header from upstream, client: 127.0.0.1, server: localhost, request: "GET /api/shop/1 HTTP/1.1", upstream: "http://127.0.0.1:8081/shop/1", host: "localhost:8082"

@@ -41,12 +41,6 @@ class HmDianPingApplicationTests {
 
     private ExecutorService es = Executors.newFixedThreadPool(500);
 
-    @Resource
-    private RedissonClient redissonClient;
-
-    @Autowired
-    private VoucherMapper voucherMapper;
-
     @Autowired
     private ShopMapper shopMapper;
 
